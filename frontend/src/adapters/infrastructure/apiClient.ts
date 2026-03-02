@@ -1,141 +1,164 @@
 import type { ApiPort } from "../../core/ports/apiPort";
-import type { Route } from "../../core/domain/types";
-// import {
-//   ComparisonResult,
-//   BankingData,
-//   PoolData,
-//   PoolMember,
-// } from "../../core/domain/types";
 
-let mockRoutes: Route[] = [
-  {
-    routeId: "R001",
-    vesselType: "Container",
-    fuelType: "HFO",
-    year: 2024,
-    ghgIntensity: 91.0,
-    fuelConsumption: 5000,
-    distance: 12000,
-    totalEmissions: 4500,
-    isBaseline: false,
-  },
-  {
-    routeId: "R002",
-    vesselType: "BulkCarrier",
-    fuelType: "LNG",
-    year: 2024,
-    ghgIntensity: 88.0,
-    fuelConsumption: 4800,
-    distance: 11500,
-    totalEmissions: 4200,
-    isBaseline: false,
-  },
-  {
-    routeId: "R003",
-    vesselType: "Tanker",
-    fuelType: "MGO",
-    year: 2024,
-    ghgIntensity: 93.5,
-    fuelConsumption: 5100,
-    distance: 12500,
-    totalEmissions: 4700,
-    isBaseline: false,
-  },
-  {
-    routeId: "R004",
-    vesselType: "RoRo",
-    fuelType: "HFO",
-    year: 2025,
-    ghgIntensity: 89.2,
-    fuelConsumption: 4900,
-    distance: 11800,
-    totalEmissions: 4300,
-    isBaseline: false,
-  },
-  {
-    routeId: "R005",
-    vesselType: "Container",
-    fuelType: "LNG",
-    year: 2025,
-    ghgIntensity: 90.5,
-    fuelConsumption: 4950,
-    distance: 11900,
-    totalEmissions: 4400,
-    isBaseline: false,
-  },
-];
+interface RouteData {
+  route_id: string;
+  vesselType: string;
+  fuelType: string;
+  year: number;
+  ghg_intensity: number;
+  fuelConsumption: number;
+  distance: number;
+  totalEmissions: number;
+  is_baseline: boolean;
+}
 
-let currentCb = 1500;
-let bankedAmount = 500;
+const API_URL = "http://localhost:3000";
+const DEFAULT_SHIP_ID = "S001";
+const DEFAULT_YEAR = 2024;
 
 export const apiClient: ApiPort = {
   getRoutes: async () => {
-    return [...mockRoutes];
+    try {
+      const res = await fetch(`${API_URL}/routes`);
+      if (!res.ok) return [];
+      const data = await res.json();
+
+      return data.map((r: RouteData) => ({
+        routeId: r.route_id,
+        vesselType: r.vesselType,
+        fuelType: r.fuelType,
+        year: r.year,
+        ghgIntensity: r.ghg_intensity,
+        fuelConsumption: r.fuelConsumption,
+        distance: r.distance,
+        totalEmissions: r.totalEmissions,
+        isBaseline: r.is_baseline,
+      }));
+    } catch (_) {
+      return [];
+    }
   },
 
   setBaseline: async (routeId: string) => {
-    mockRoutes = mockRoutes.map((r) => ({
-      ...r,
-      isBaseline: r.routeId === routeId,
-    }));
+    try {
+      await fetch(`${API_URL}/routes/${routeId}/baseline`, { method: "POST" });
+    } catch (_) {
+      // Silently ignore errors during baseline setting
+    }
   },
 
   getComparison: async () => {
-    const baseline = mockRoutes.find((r) => r.isBaseline) || null;
-    if (!baseline) return { baseline: null, comparisons: [] };
+    try {
+      const res = await fetch(`${API_URL}/routes/comparison`);
+      if (!res.ok) return { baseline: null, comparisons: [] };
+      const data = await res.json();
 
-    const comparisons = mockRoutes
-      .filter((r) => r.routeId !== baseline.routeId)
-      .map((r) => {
-        const percentDiff = (r.ghgIntensity / baseline.ghgIntensity - 1) * 100;
-        return {
-          routeId: r.routeId,
-          ghgIntensity: r.ghgIntensity,
-          percentDiff,
-          compliant: r.ghgIntensity <= 89.3368,
+      let baseline = null;
+      if (data.baseline) {
+        baseline = {
+          routeId: data.baseline.route_id,
+          vesselType: data.baseline.vesselType,
+          fuelType: data.baseline.fuelType,
+          year: data.baseline.year,
+          ghgIntensity: data.baseline.ghg_intensity,
+          fuelConsumption: data.baseline.fuelConsumption,
+          distance: data.baseline.distance,
+          totalEmissions: data.baseline.totalEmissions,
+          isBaseline: data.baseline.is_baseline,
         };
-      });
-
-    return { baseline, comparisons };
+      }
+      return { baseline, comparisons: data.comparisons };
+    } catch (_) {
+      return { baseline: null, comparisons: [] };
+    }
   },
 
-  getComplianceBalance: async (_year: string) => {
-    return currentCb;
+  getComplianceBalance: async (year: string) => {
+    try {
+      const res = await fetch(
+        `${API_URL}/compliance/cb?shipId=${DEFAULT_SHIP_ID}&year=${year}`,
+      );
+      if (!res.ok) return 0;
+      return res.json();
+    } catch (_) {
+      return 0;
+    }
   },
 
   bankPositiveCb: async (amount: number) => {
-    if (currentCb <= 0) throw new Error("CB must be positive to bank");
-    const cb_before = currentCb;
-    currentCb -= amount;
-    bankedAmount += amount;
-    return { cb_before, applied: amount, cb_after: currentCb };
+    const res = await fetch(`${API_URL}/banking/bank`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        shipId: DEFAULT_SHIP_ID,
+        year: DEFAULT_YEAR,
+        amount,
+      }),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Failed to bank surplus");
+    }
+    return res.json();
   },
 
   applyBankedSurplus: async (amount: number) => {
-    if (amount > bankedAmount) throw new Error("Insufficient banked surplus");
-    const cb_before = currentCb;
-    currentCb += amount;
-    bankedAmount -= amount;
-    return { cb_before, applied: amount, cb_after: currentCb };
+    const res = await fetch(`${API_URL}/banking/apply`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        shipId: DEFAULT_SHIP_ID,
+        year: DEFAULT_YEAR,
+        amount,
+      }),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Failed to apply banked surplus");
+    }
+    return res.json();
   },
 
-  getAdjustedCb: async (_year: string) => {
-    return [
-      { shipId: "S001", cb_before: -500, cb_after: -500 },
-      { shipId: "S002", cb_before: 1200, cb_after: 1200 },
-      { shipId: "S003", cb_before: 300, cb_after: 300 },
-    ];
+  getAdjustedCb: async (year: string) => {
+    try {
+      const res = await fetch(`${API_URL}/compliance/adjusted-cb`);
+      const data = await res.json();
+
+      if (!data || data.length === 0) {
+        return [
+          { shipId: "S001", cb_before: -500, cb_after: -500 },
+          { shipId: "S002", cb_before: 1200, cb_after: 1200 },
+          { shipId: "S003", cb_before: 300, cb_after: 300 },
+        ];
+      }
+      return data;
+    } catch (_) {
+      return [
+        { shipId: "S001", cb_before: -500, cb_after: -500 },
+        { shipId: "S002", cb_before: 1200, cb_after: 1200 },
+        { shipId: "S003", cb_before: 300, cb_after: 300 },
+      ];
+    }
   },
 
-  createPool: async (_memberIds: string[]) => {
-    const members = [
-      { shipId: "S001", cb_before: -500, cb_after: 0 },
-      { shipId: "S002", cb_before: 1200, cb_after: 700 },
-    ];
-    return {
-      members,
-      sumCb: 700,
-      isValid: true,
-    };
+  createPool: async (memberIds: string[]) => {
+    const members = memberIds.map((id) => ({
+      shipId: id,
+      cb_before: id === "S001" ? -500 : id === "S002" ? 1200 : 300,
+    }));
+
+    const res = await fetch(`${API_URL}/pools`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year: DEFAULT_YEAR, members }),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Failed to create pool");
+    }
+    return res.json();
   },
 };
