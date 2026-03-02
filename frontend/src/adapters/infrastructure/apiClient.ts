@@ -1,11 +1,11 @@
 import type { ApiPort } from "../../core/ports/apiPort";
 import type { Route } from "../../core/domain/types";
-import {
-  ComparisonResult,
-  BankingData,
-  PoolData,
-  PoolMember,
-} from "../../core/domain/types";
+// import {
+//   ComparisonResult,
+//   BankingData,
+//   PoolData,
+//   PoolMember,
+// } from "../../core/domain/types";
 
 let mockRoutes: Route[] = [
   {
@@ -99,7 +99,7 @@ export const apiClient: ApiPort = {
     return { baseline, comparisons };
   },
 
-  getComplianceBalance: async (year: string) => {
+  getComplianceBalance: async (_year: string) => {
     return currentCb;
   },
 
@@ -119,7 +119,7 @@ export const apiClient: ApiPort = {
     return { cb_before, applied: amount, cb_after: currentCb };
   },
 
-  getAdjustedCb: async (year: string) => {
+  getAdjustedCb: async (_year: string) => {
     return [
       { shipId: "S001", cb_before: -500, cb_after: -500 },
       { shipId: "S002", cb_before: 1200, cb_after: 1200 },
@@ -127,7 +127,7 @@ export const apiClient: ApiPort = {
     ];
   },
 
-  createPool: async (memberIds: string[]) => {
+  createPool: async (_memberIds: string[]) => {
     const members = [
       { shipId: "S001", cb_before: -500, cb_after: 0 },
       { shipId: "S002", cb_before: 1200, cb_after: 700 },
