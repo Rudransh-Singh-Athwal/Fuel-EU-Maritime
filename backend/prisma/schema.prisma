@@ -1,0 +1,61 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Route {
+  id              Int     @id @default(autoincrement())
+  route_id        String  @unique
+  vesselType      String
+  fuelType        String
+  year            Int
+  ghg_intensity   Float
+  fuelConsumption Float
+  distance        Float
+  totalEmissions  Float
+  is_baseline     Boolean @default(false)
+
+  @@map("routes")
+}
+
+model ShipCompliance {
+  id         Int    @id @default(autoincrement())
+  ship_id    String
+  year       Int
+  cb_gco2eq  Float
+
+  @@map("ship_compliance")
+}
+
+model BankEntry {
+  id            Int    @id @default(autoincrement())
+  ship_id       String
+  year          Int
+  amount_gco2eq Float
+
+  @@map("bank_entries")
+}
+
+model Pool {
+  id         Int          @id @default(autoincrement())
+  year       Int
+  created_at DateTime     @default(now())
+  members    PoolMember[]
+
+  @@map("pools")
+}
+
+model PoolMember {
+  pool_id   Int
+  ship_id   String
+  cb_before Float
+  cb_after  Float
+  pool      Pool   @relation(fields: [pool_id], references: [id])
+
+  @@id([pool_id, ship_id])
+  @@map("pool_members")
+}
