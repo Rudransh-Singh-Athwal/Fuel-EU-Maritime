@@ -1,12 +1,8 @@
-import { ComplianceRepository } from "../../../core/ports/ComplianceRepository";
-import { prisma } from "../../../infrastructure/db/prisma";
+import { ComplianceRepository, BankEntryRecord } from '../../../core/ports/ComplianceRepository';
+import { prisma } from '../../../infrastructure/db/prisma';
 
 export class PrismaComplianceRepository implements ComplianceRepository {
-  async saveComplianceBalance(
-    shipId: string,
-    year: number,
-    cb: number,
-  ): Promise<void> {
+  async saveComplianceBalance(shipId: string, year: number, cb: number): Promise<void> {
     const existing = await prisma.shipCompliance.findFirst({
       where: { ship_id: shipId, year },
     });
@@ -22,21 +18,14 @@ export class PrismaComplianceRepository implements ComplianceRepository {
     }
   }
 
-  async getComplianceBalance(
-    shipId: string,
-    year: number,
-  ): Promise<number | null> {
+  async getComplianceBalance(shipId: string, year: number): Promise<number | null> {
     const record = await prisma.shipCompliance.findFirst({
       where: { ship_id: shipId, year },
     });
     return record ? record.cb_gco2eq : null;
   }
 
-  async saveBankEntry(
-    shipId: string,
-    year: number,
-    amount: number,
-  ): Promise<void> {
+  async saveBankEntry(shipId: string, year: number, amount: number): Promise<void> {
     await prisma.bankEntry.create({
       data: { ship_id: shipId, year, amount_gco2eq: amount },
     });
@@ -46,9 +35,14 @@ export class PrismaComplianceRepository implements ComplianceRepository {
     const entries = await prisma.bankEntry.findMany({
       where: { ship_id: shipId, year },
     });
-    return entries.reduce(
-      (sum: number, entry: any) => sum + entry.amount_gco2eq,
-      0,
-    );
+    return entries.reduce((sum: number, e: any) => sum + e.amount_gco2eq, 0);
+  }
+
+  // NEW: returns full history of bank entries for a ship/year
+  async getBankingRecords(shipId: string, year: number): Promise<BankEntryRecord[]> {
+    return prisma.bankEntry.findMany({
+      where: { ship_id: shipId, year },
+      orderBy: { id: 'asc' },
+    });
   }
 }

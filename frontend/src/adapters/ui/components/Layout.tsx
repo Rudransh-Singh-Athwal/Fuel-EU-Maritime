@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { RoutesTab } from "../pages/RoutesTab";
-import { CompareTab } from "../pages/CompareTab";
-import { BankingTab } from "../pages/BankingTab";
-import { PoolingTab } from "../pages/PoolingTab";
-import { apiClient } from "../../infrastructure/apiClient";
-import { Sun, Moon, Loader2, AlertCircle } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { RoutesTab } from '../pages/RoutesTab';
+import { CompareTab } from '../pages/CompareTab';
+import { BankingTab } from '../pages/BankingTab';
+import { PoolingTab } from '../pages/PoolingTab';
+import { apiClient } from '../../infrastructure/apiClient';
+import { Sun, Moon, Loader2, AlertCircle } from 'lucide-react';
 
 export const Layout: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("routes");
+  const [activeTab, setActiveTab] = useState('routes');
   const [isLoading, setIsLoading] = useState(true);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -18,15 +18,11 @@ export const Layout: React.FC = () => {
         const routes = await apiClient.getRoutes();
         if (!routes || routes.length === 0) {
           throw new Error(
-            "Could not connect to the backend or no data was found. Please ensure the server is running and the database is seeded.",
+            'Could not connect to the backend or no data was found. Please ensure the server is running and the database is seeded.',
           );
         }
       } catch (err: Error | unknown) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to initialize application data.",
-        );
+        setError(err instanceof Error ? err.message : 'Failed to initialize application data.');
       } finally {
         setIsLoading(false);
       }
@@ -36,9 +32,9 @@ export const Layout: React.FC = () => {
 
   useEffect(() => {
     if (isDarkMode) {
-      document.documentElement.classList.add("dark");
+      document.documentElement.classList.add('dark');
     } else {
-      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
 
@@ -65,9 +61,7 @@ export const Layout: React.FC = () => {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 text-center">
           Connection Error
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 text-center max-w-md">
-          {error}
-        </p>
+        <p className="text-lg text-gray-600 dark:text-gray-400 text-center max-w-md">{error}</p>
         <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto">
           <button
             onClick={() => window.location.reload()}
@@ -88,13 +82,13 @@ export const Layout: React.FC = () => {
 
   const renderTab = () => {
     switch (activeTab) {
-      case "routes":
+      case 'routes':
         return <RoutesTab />;
-      case "compare":
+      case 'compare':
         return <CompareTab />;
-      case "banking":
+      case 'banking':
         return <BankingTab />;
-      case "pooling":
+      case 'pooling':
         return <PoolingTab />;
       default:
         return <RoutesTab />;
@@ -104,9 +98,7 @@ export const Layout: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
       <header className="bg-slate-900 dark:bg-slate-950 text-white p-6 shadow-md flex justify-between items-center">
-        <h1 className="text-2xl font-bold tracking-tight">
-          FuelEU Maritime Compliance
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tight">FuelEU Maritime Compliance</h1>
         <button
           onClick={() => setIsDarkMode(!isDarkMode)}
           className="p-2 rounded-full hover:bg-slate-800 transition-colors"
@@ -121,14 +113,14 @@ export const Layout: React.FC = () => {
 
       <main className="max-w-7xl mx-auto mt-6 bg-white dark:bg-slate-800 rounded-xl shadow-sm border dark:border-slate-700 overflow-hidden transition-colors duration-300">
         <div className="flex border-b dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
-          {["Routes", "Compare", "Banking", "Pooling"].map((tab) => (
+          {['Routes', 'Compare', 'Banking', 'Pooling'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab.toLowerCase())}
               className={`flex-1 py-4 text-center font-medium transition-colors ${
                 activeTab === tab.toLowerCase()
-                  ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-800"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700"
+                  ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-800'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700'
               }`}
             >
               {tab}
@@ -136,9 +128,7 @@ export const Layout: React.FC = () => {
           ))}
         </div>
 
-        <div className="min-h-[600px] text-gray-900 dark:text-gray-100">
-          {renderTab()}
-        </div>
+        <div className="min-h-[600px] text-gray-900 dark:text-gray-100">{renderTab()}</div>
       </main>
     </div>
   );
