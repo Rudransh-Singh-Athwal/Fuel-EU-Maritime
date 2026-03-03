@@ -1,6 +1,6 @@
-import { RouteRepository } from '../../../core/ports/RouteRepository';
-import { Route } from '../../../core/domain/Route';
-import { prisma } from '../../../infrastructure/db/prisma';
+import { RouteRepository } from "../../../core/ports/RouteRepository";
+import { Route } from "../../../core/domain/Route";
+import { prisma } from "../../../infrastructure/db/prisma";
 
 export class PrismaRouteRepository implements RouteRepository {
   async findAll(): Promise<Route[]> {
@@ -19,9 +19,5 @@ export class PrismaRouteRepository implements RouteRepository {
         data: { is_baseline: true },
       }),
     ]);
-  }
-
-  async findByYear(year: number): Promise<Route[]> {
-    return prisma.route.findMany({ where: { year } });
   }
 }

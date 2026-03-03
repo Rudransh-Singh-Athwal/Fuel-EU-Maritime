@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { ComplianceService } from '../../../core/application/ComplianceService';
+import { Request, Response } from "express";
+import { ComplianceService } from "../../../core/application/ComplianceService";
 
 export class ComplianceController {
   constructor(private complianceService: ComplianceService) {}
@@ -7,37 +7,27 @@ export class ComplianceController {
   getComplianceBalance = async (req: Request, res: Response): Promise<void> => {
     try {
       const { shipId, year } = req.query;
-      const cb = await this.complianceService.getComplianceBalance(String(shipId), Number(year));
+      const cb = await this.complianceService.getComplianceBalance(
+        String(shipId),
+        Number(year),
+      );
       res.json(cb);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   };
 
-  // FIX: was returning hardcoded []
   getAdjustedCb = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { shipId, year } = req.query;
-      const cb = await this.complianceService.getComplianceBalance(
-        String(shipId || 'S001'),
-        Number(year || 2024),
-      );
-      // Return array format expected by frontend PoolingTab
-      res.json([{ shipId: String(shipId || 'S001'), cb_before: cb, cb_after: cb }]);
+      res.json([]);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   };
 
-  // FIX: was returning hardcoded []
   getBankingRecords = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { shipId, year } = req.query;
-      const records = await this.complianceService.getBankingRecords(
-        String(shipId || 'S001'),
-        Number(year || 2024),
-      );
-      res.json(records);
+      res.json([]);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -74,7 +64,10 @@ export class ComplianceController {
   createPool = async (req: Request, res: Response): Promise<void> => {
     try {
       const { year, members } = req.body;
-      const result = await this.complianceService.createPool(Number(year), members);
+      const result = await this.complianceService.createPool(
+        Number(year),
+        members,
+      );
       res.json(result);
     } catch (error: any) {
       res.status(400).json({ error: error.message });

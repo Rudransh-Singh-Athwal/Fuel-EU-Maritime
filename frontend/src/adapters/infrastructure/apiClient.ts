@@ -1,4 +1,4 @@
-import type { ApiPort } from '../../core/ports/apiPort';
+import type { ApiPort } from "../../core/ports/apiPort";
 
 interface RouteData {
   route_id: string;
@@ -12,8 +12,8 @@ interface RouteData {
   is_baseline: boolean;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-const DEFAULT_SHIP_ID = 'S001';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const DEFAULT_SHIP_ID = "S001";
 const DEFAULT_YEAR = 2024;
 
 export const apiClient: ApiPort = {
@@ -41,7 +41,7 @@ export const apiClient: ApiPort = {
 
   setBaseline: async (routeId: string) => {
     try {
-      await fetch(`${API_URL}/routes/${routeId}/baseline`, { method: 'POST' });
+      await fetch(`${API_URL}/routes/${routeId}/baseline`, { method: "POST" });
     } catch (_) {
       // Silently ignore errors during baseline setting
     }
@@ -75,7 +75,9 @@ export const apiClient: ApiPort = {
 
   getComplianceBalance: async (year: string) => {
     try {
-      const res = await fetch(`${API_URL}/compliance/cb?shipId=${DEFAULT_SHIP_ID}&year=${year}`);
+      const res = await fetch(
+        `${API_URL}/compliance/cb?shipId=${DEFAULT_SHIP_ID}&year=${year}`,
+      );
       if (!res.ok) return 0;
       return res.json();
     } catch (_) {
@@ -85,8 +87,8 @@ export const apiClient: ApiPort = {
 
   bankPositiveCb: async (amount: number) => {
     const res = await fetch(`${API_URL}/banking/bank`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         shipId: DEFAULT_SHIP_ID,
         year: DEFAULT_YEAR,
@@ -96,15 +98,15 @@ export const apiClient: ApiPort = {
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.error || 'Failed to bank surplus');
+      throw new Error(errorData.error || "Failed to bank surplus");
     }
     return res.json();
   },
 
   applyBankedSurplus: async (amount: number) => {
     const res = await fetch(`${API_URL}/banking/apply`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         shipId: DEFAULT_SHIP_ID,
         year: DEFAULT_YEAR,
@@ -114,7 +116,7 @@ export const apiClient: ApiPort = {
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.error || 'Failed to apply banked surplus');
+      throw new Error(errorData.error || "Failed to apply banked surplus");
     }
     return res.json();
   },
@@ -126,17 +128,17 @@ export const apiClient: ApiPort = {
 
       if (!data || data.length === 0) {
         return [
-          { shipId: 'S001', cb_before: -500, cb_after: -500 },
-          { shipId: 'S002', cb_before: 1200, cb_after: 1200 },
-          { shipId: 'S003', cb_before: 300, cb_after: 300 },
+          { shipId: "S001", cb_before: -500, cb_after: -500 },
+          { shipId: "S002", cb_before: 1200, cb_after: 1200 },
+          { shipId: "S003", cb_before: 300, cb_after: 300 },
         ];
       }
       return data;
     } catch (_) {
       return [
-        { shipId: 'S001', cb_before: -500, cb_after: -500 },
-        { shipId: 'S002', cb_before: 1200, cb_after: 1200 },
-        { shipId: 'S003', cb_before: 300, cb_after: 300 },
+        { shipId: "S001", cb_before: -500, cb_after: -500 },
+        { shipId: "S002", cb_before: 1200, cb_after: 1200 },
+        { shipId: "S003", cb_before: 300, cb_after: 300 },
       ];
     }
   },
@@ -144,18 +146,18 @@ export const apiClient: ApiPort = {
   createPool: async (memberIds: string[]) => {
     const members = memberIds.map((id) => ({
       shipId: id,
-      cb_before: id === 'S001' ? -500 : id === 'S002' ? 1200 : 300,
+      cb_before: id === "S001" ? -500 : id === "S002" ? 1200 : 300,
     }));
 
     const res = await fetch(`${API_URL}/pools`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ year: DEFAULT_YEAR, members }),
     });
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.error || 'Failed to create pool');
+      throw new Error(errorData.error || "Failed to create pool");
     }
     return res.json();
   },
