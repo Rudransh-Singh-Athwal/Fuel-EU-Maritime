@@ -12,7 +12,7 @@ interface RouteData {
   is_baseline: boolean;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 const DEFAULT_SHIP_ID = "S001";
 const DEFAULT_YEAR = 2024;
 
