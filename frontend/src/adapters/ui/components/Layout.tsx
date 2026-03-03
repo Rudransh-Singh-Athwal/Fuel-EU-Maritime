@@ -22,7 +22,11 @@ export const Layout: React.FC = () => {
           );
         }
       } catch (err: Error | unknown) {
-        setError(err instanceof Error ? err.message : "Failed to initialize application data.");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to initialize application data.",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -40,13 +44,13 @@ export const Layout: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
-        <h1 className="text-4xl font-bold text-blue-600 dark:text-blue-400 tracking-tight">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-gray-50 dark:bg-slate-900 transition-colors duration-300 px-4">
+        <h1 className="text-4xl font-bold text-center text-blue-600 dark:text-blue-400 tracking-tight">
           FuelEU Maritime Compliance
         </h1>
         <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
-          <Loader2 className="w-6 h-6 animate-spin" />
-          <span className="text-lg font-medium animate-pulse">
+          <Loader2 className="w-6 h-6 animate-spin shrink-0" />
+          <span className="text-lg font-medium animate-pulse text-center">
             Fetching data from server...
           </span>
         </div>
