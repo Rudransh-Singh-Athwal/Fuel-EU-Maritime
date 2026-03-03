@@ -1,4 +1,7 @@
-import { ComplianceRepository } from "../../../core/ports/ComplianceRepository";
+import {
+  ComplianceRepository,
+  BankEntryRecord,
+} from "../../../core/ports/ComplianceRepository";
 import { prisma } from "../../../infrastructure/db/prisma";
 
 export class PrismaComplianceRepository implements ComplianceRepository {
@@ -46,9 +49,17 @@ export class PrismaComplianceRepository implements ComplianceRepository {
     const entries = await prisma.bankEntry.findMany({
       where: { ship_id: shipId, year },
     });
-    return entries.reduce(
-      (sum: number, entry: any) => sum + entry.amount_gco2eq,
-      0,
-    );
+    return entries.reduce((sum: number, e: any) => sum + e.amount_gco2eq, 0);
+  }
+
+  // NEW: returns full history of bank entries for a ship/year
+  async getBankingRecords(
+    shipId: string,
+    year: number,
+  ): Promise<BankEntryRecord[]> {
+    return prisma.bankEntry.findMany({
+      where: { ship_id: shipId, year },
+      orderBy: { id: "asc" },
+    });
   }
 }

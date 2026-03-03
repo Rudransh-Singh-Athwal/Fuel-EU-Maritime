@@ -5,6 +5,7 @@ export interface ComplianceRecord {
 }
 
 export interface BankEntryRecord {
+  id: number;
   ship_id: string;
   year: number;
   amount_gco2eq: number;
@@ -19,4 +20,5 @@ export interface ComplianceRepository {
   getComplianceBalance(shipId: string, year: number): Promise<number | null>;
   saveBankEntry(shipId: string, year: number, amount: number): Promise<void>;
   getBankedAmount(shipId: string, year: number): Promise<number>;
+  getBankingRecords(shipId: string, year: number): Promise<BankEntryRecord[]>;
 }

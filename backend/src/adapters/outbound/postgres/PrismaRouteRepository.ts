@@ -20,4 +20,8 @@ export class PrismaRouteRepository implements RouteRepository {
       }),
     ]);
   }
+
+  async findByYear(year: number): Promise<Route[]> {
+    return prisma.route.findMany({ where: { year } });
+  }
 }

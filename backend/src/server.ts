@@ -21,7 +21,7 @@ app.use(
       "https://fuel-eu-maritime-rsa.vercel.app",
     ],
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
@@ -31,7 +31,11 @@ const complianceRepo = new PrismaComplianceRepository();
 const poolRepo = new PrismaPoolRepository();
 
 const routeService = new RouteService(routeRepo);
-const complianceService = new ComplianceService(complianceRepo, poolRepo);
+const complianceService = new ComplianceService(
+  complianceRepo,
+  poolRepo,
+  routeRepo,
+);
 
 const routeController = new RouteController(routeService);
 const complianceController = new ComplianceController(complianceService);
