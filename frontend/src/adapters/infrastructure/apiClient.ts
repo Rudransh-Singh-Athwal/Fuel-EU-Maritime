@@ -121,7 +121,7 @@ export const apiClient: ApiPort = {
     return res.json();
   },
 
-  getAdjustedCb: async (year: string) => {
+  getAdjustedCb: async (_year: string) => {
     try {
       const res = await fetch(`${API_URL}/compliance/adjusted-cb`);
       const data = await res.json();
