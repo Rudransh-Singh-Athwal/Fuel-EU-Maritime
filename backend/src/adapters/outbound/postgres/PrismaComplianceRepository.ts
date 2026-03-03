@@ -46,6 +46,9 @@ export class PrismaComplianceRepository implements ComplianceRepository {
     const entries = await prisma.bankEntry.findMany({
       where: { ship_id: shipId, year },
     });
-    return entries.reduce((sum, entry) => sum + entry.amount_gco2eq, 0);
+    return entries.reduce(
+      (sum: number, entry: any) => sum + entry.amount_gco2eq,
+      0,
+    );
   }
 }
