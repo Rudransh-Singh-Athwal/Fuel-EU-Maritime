@@ -1,5 +1,4 @@
 export interface Route {
-  routeId(routeId: any): unknown;
   id?: number;
   route_id: string;
   vesselType: string;
