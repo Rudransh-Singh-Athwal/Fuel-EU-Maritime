@@ -25,8 +25,8 @@ export const BankingTab: React.FC = () => {
       const result = await apiClient.bankPositiveCb(Number(amount));
       setKpi(result);
       await fetchCb();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
@@ -36,21 +36,21 @@ export const BankingTab: React.FC = () => {
       const result = await apiClient.applyBankedSurplus(Number(amount));
       setKpi(result);
       await fetchCb();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
   const isDisabled = currentCb <= 0;
 
   return (
-    <div className="p-6 max-w-2xl">
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow border dark:border-slate-700 mb-6">
-        <h2 className="text-2xl font-bold mb-2">
+    <div className="p-4 sm:p-6 max-w-2xl mx-auto">
+      <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow border dark:border-slate-700 mb-6 text-center sm:text-left">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">
           Current Compliance Balance (CB)
         </h2>
         <p
-          className={`text-3xl font-mono ${currentCb > 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+          className={`text-2xl sm:text-3xl font-mono ${currentCb > 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
         >
           {currentCb} gCO₂eq
         </p>
@@ -62,44 +62,44 @@ export const BankingTab: React.FC = () => {
         </div>
       )}
 
-      <div className="flex gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <input
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Amount"
-          className="border dark:border-slate-600 bg-transparent p-2 rounded flex-1"
+          className="border dark:border-slate-600 bg-transparent p-2 rounded w-full sm:flex-1"
         />
         <button
           onClick={handleBank}
           disabled={isDisabled}
-          className="bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded disabled:opacity-50"
+          className="bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded disabled:opacity-50 w-full sm:w-auto"
         >
           Bank Surplus
         </button>
         <button
           onClick={handleApply}
-          className="bg-purple-600 dark:bg-purple-500 text-white px-6 py-2 rounded"
+          className="bg-purple-600 dark:bg-purple-500 text-white px-6 py-2 rounded w-full sm:w-auto"
         >
           Apply to Deficit
         </button>
       </div>
 
       {kpi && (
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded border dark:border-slate-600">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded border dark:border-slate-600 text-center">
             <div className="text-sm text-gray-500 dark:text-gray-400">
               CB Before
             </div>
             <div className="text-xl font-bold">{kpi.cb_before}</div>
           </div>
-          <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded border dark:border-slate-600">
+          <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded border dark:border-slate-600 text-center">
             <div className="text-sm text-gray-500 dark:text-gray-400">
               Applied
             </div>
             <div className="text-xl font-bold">{kpi.applied}</div>
           </div>
-          <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded border dark:border-slate-600">
+          <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded border dark:border-slate-600 text-center">
             <div className="text-sm text-gray-500 dark:text-gray-400">
               CB After
             </div>
