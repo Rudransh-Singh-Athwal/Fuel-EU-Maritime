@@ -68,12 +68,20 @@ export const Layout: React.FC = () => {
         <p className="text-lg text-gray-600 dark:text-gray-400 text-center max-w-md">
           {error}
         </p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-        >
-          Retry Connection
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4 mt-6 w-full sm:w-auto">
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors w-full sm:w-auto"
+          >
+            Retry Connection
+          </button>
+          <button
+            onClick={() => setError(null)}
+            className="px-6 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-gray-200 rounded-md transition-colors w-full sm:w-auto"
+          >
+            Proceed without Data
+          </button>
+        </div>
       </div>
     );
   }
