@@ -1,5 +1,19 @@
 import "dotenv/config";
-import { prisma } from "../src/infrastructure/db/prisma";
+import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+declare var process: any;
+
+const connectionString = process.env.DATABASE_URL;
+const pool = new Pool({
+  connectionString,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   await prisma.route.deleteMany();
