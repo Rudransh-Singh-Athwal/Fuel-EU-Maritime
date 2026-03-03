@@ -9,7 +9,7 @@ import { Sun, Moon, Loader2, AlertCircle } from "lucide-react";
 export const Layout: React.FC = () => {
   const [activeTab, setActiveTab] = useState("routes");
   const [isLoading, setIsLoading] = useState(true);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
