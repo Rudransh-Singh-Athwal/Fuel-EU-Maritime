@@ -29,7 +29,7 @@ export const CompareTab: React.FC = () => {
 
   if (!baseline) {
     return (
-      <div className="p-6 text-gray-500">
+      <div className="p-6 text-gray-500 dark:text-gray-400">
         Please set a baseline route in the Routes tab first.
       </div>
     );
@@ -53,7 +53,7 @@ export const CompareTab: React.FC = () => {
       <div className="overflow-x-auto mb-8">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-100 border-b">
+            <tr className="bg-gray-100 dark:bg-slate-700 border-b dark:border-slate-600">
               <th className="p-3">Route ID</th>
               <th className="p-3">GHG Intensity</th>
               <th className="p-3">% Difference</th>
@@ -62,15 +62,15 @@ export const CompareTab: React.FC = () => {
           </thead>
           <tbody>
             {comparisons.map((comp) => (
-              <tr key={comp.routeId} className="border-b">
+              <tr key={comp.routeId} className="border-b dark:border-slate-700">
                 <td className="p-3">{comp.routeId}</td>
                 <td className="p-3">{comp.ghgIntensity.toFixed(2)}</td>
                 <td className="p-3">{comp.percentDiff.toFixed(2)}%</td>
                 <td className="p-3">
                   {comp.compliant ? (
-                    <CheckCircle className="text-green-500" />
+                    <CheckCircle className="text-green-500 dark:text-green-400" />
                   ) : (
-                    <XCircle className="text-red-500" />
+                    <XCircle className="text-red-500 dark:text-red-400" />
                   )}
                 </td>
               </tr>
@@ -82,16 +82,26 @@ export const CompareTab: React.FC = () => {
       <div className="h-96 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="routeId" />
-            <YAxis domain={["auto", "auto"]} />
-            <Tooltip />
+            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+            <XAxis dataKey="routeId" stroke="#94a3b8" />
+            <YAxis domain={["auto", "auto"]} stroke="#94a3b8" />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#1e293b",
+                border: "none",
+                color: "#f8fafc",
+              }}
+            />
             <Legend />
             <ReferenceLine
               y={89.3368}
-              stroke="red"
+              stroke="#ef4444"
               strokeDasharray="3 3"
-              label="Target (89.3368)"
+              label={{
+                position: "top",
+                value: "Target (89.3368)",
+                fill: "#ef4444",
+              }}
             />
             <Bar dataKey="ghgIntensity" fill="#3b82f6" name="GHG Intensity" />
           </BarChart>

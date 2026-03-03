@@ -8,24 +8,16 @@ export const RoutesTab: React.FC = () => {
   const [fuelFilter, setFuelFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
 
-  useEffect(() => {
-    let ignore = false;
-    const fetchRoutes = async () => {
-      const data = await apiClient.getRoutes();
-      if (!ignore) {
-        setRoutes(data);
-      }
-    };
-    fetchRoutes();
-    return () => {
-      ignore = true;
-    };
-  }, []);
-
   const fetchRoutes = async () => {
     const data = await apiClient.getRoutes();
     setRoutes(data);
   };
+
+  useEffect(() => {
+    (async () => {
+      await fetchRoutes();
+    })();
+  }, []);
 
   const handleSetBaseline = async (routeId: string) => {
     await apiClient.setBaseline(routeId);
@@ -34,9 +26,13 @@ export const RoutesTab: React.FC = () => {
 
   const filteredRoutes = routes.filter(
     (r) =>
-      (vesselFilter ? r.vesselType === vesselFilter : true) &&
-      (fuelFilter ? r.fuelType === fuelFilter : true) &&
-      (yearFilter ? r.year.toString() === yearFilter : true),
+      (vesselFilter
+        ? r.vesselType.toLowerCase().includes(vesselFilter.toLowerCase())
+        : true) &&
+      (fuelFilter
+        ? r.fuelType.toLowerCase().includes(fuelFilter.toLowerCase())
+        : true) &&
+      (yearFilter ? r.year.toString().includes(yearFilter) : true),
   );
 
   return (
@@ -45,21 +41,21 @@ export const RoutesTab: React.FC = () => {
         <input
           type="text"
           placeholder="Filter Vessel Type"
-          className="border p-2 rounded"
+          className="border dark:border-slate-600 bg-transparent p-2 rounded flex-1"
           value={vesselFilter}
           onChange={(e) => setVesselFilter(e.target.value)}
         />
         <input
           type="text"
           placeholder="Filter Fuel Type"
-          className="border p-2 rounded"
+          className="border dark:border-slate-600 bg-transparent p-2 rounded flex-1"
           value={fuelFilter}
           onChange={(e) => setFuelFilter(e.target.value)}
         />
         <input
           type="text"
           placeholder="Filter Year"
-          className="border p-2 rounded"
+          className="border dark:border-slate-600 bg-transparent p-2 rounded flex-1"
           value={yearFilter}
           onChange={(e) => setYearFilter(e.target.value)}
         />
@@ -68,7 +64,7 @@ export const RoutesTab: React.FC = () => {
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-100 border-b">
+            <tr className="bg-gray-100 dark:bg-slate-700 border-b dark:border-slate-600">
               <th className="p-3">Route ID</th>
               <th className="p-3">Vessel Type</th>
               <th className="p-3">Fuel Type</th>
@@ -84,7 +80,7 @@ export const RoutesTab: React.FC = () => {
             {filteredRoutes.map((route) => (
               <tr
                 key={route.routeId}
-                className={`border-b ${route.isBaseline ? "bg-blue-50" : ""}`}
+                className={`border-b dark:border-slate-700 ${route.isBaseline ? "bg-blue-50 dark:bg-blue-900/20" : ""}`}
               >
                 <td className="p-3">{route.routeId}</td>
                 <td className="p-3">{route.vesselType}</td>
@@ -97,7 +93,7 @@ export const RoutesTab: React.FC = () => {
                 <td className="p-3">
                   <button
                     onClick={() => handleSetBaseline(route.routeId)}
-                    className={`px-4 py-2 rounded text-white ${route.isBaseline ? "bg-green-500" : "bg-blue-600 hover:bg-blue-700"}`}
+                    className={`px-4 py-2 rounded text-white ${route.isBaseline ? "bg-green-500 dark:bg-green-600" : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"}`}
                     disabled={route.isBaseline}
                   >
                     {route.isBaseline ? "Baseline Set" : "Set Baseline"}

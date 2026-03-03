@@ -38,7 +38,7 @@ export const PoolingTab: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Available Ships for Pooling</h2>
         <div
-          className={`px-4 py-2 rounded font-bold ${currentSum >= 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+          className={`px-4 py-2 rounded font-bold ${currentSum >= 0 ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400" : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400"}`}
         >
           Pool Sum: {currentSum}
         </div>
@@ -47,7 +47,7 @@ export const PoolingTab: React.FC = () => {
       <div className="overflow-x-auto mb-6">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-100 border-b">
+            <tr className="bg-gray-100 dark:bg-slate-700 border-b dark:border-slate-600">
               <th className="p-3">Select</th>
               <th className="p-3">Ship ID</th>
               <th className="p-3">CB Before</th>
@@ -55,19 +55,22 @@ export const PoolingTab: React.FC = () => {
           </thead>
           <tbody>
             {members.map((member) => (
-              <tr key={member.shipId} className="border-b">
+              <tr
+                key={member.shipId}
+                className="border-b dark:border-slate-700"
+              >
                 <td className="p-3">
                   <input
                     type="checkbox"
                     checked={selectedIds.has(member.shipId)}
                     onChange={() => toggleSelection(member.shipId)}
+                    className="w-5 h-5 accent-blue-600"
                     aria-label={`Select ship ${member.shipId}`}
-                    className="w-5 h-5"
                   />
                 </td>
                 <td className="p-3">{member.shipId}</td>
                 <td
-                  className={`p-3 font-mono ${member.cb_before >= 0 ? "text-green-600" : "text-red-600"}`}
+                  className={`p-3 font-mono ${member.cb_before >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
                 >
                   {member.cb_before}
                 </td>
@@ -80,17 +83,17 @@ export const PoolingTab: React.FC = () => {
       <button
         onClick={handleCreatePool}
         disabled={!isValidPool}
-        className="bg-blue-600 text-white px-6 py-2 rounded disabled:opacity-50 mb-8"
+        className="bg-blue-600 dark:bg-blue-500 text-white px-6 py-2 rounded disabled:opacity-50 mb-8"
       >
         Create Pool
       </button>
 
       {poolResult && (
-        <div className="bg-white border rounded shadow p-6">
+        <div className="bg-white dark:bg-slate-800 border dark:border-slate-700 rounded shadow p-6">
           <h3 className="text-lg font-bold mb-4">Pool Creation Successful</h3>
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50 border-b">
+              <tr className="bg-gray-50 dark:bg-slate-700/50 border-b dark:border-slate-600">
                 <th className="p-3">Ship ID</th>
                 <th className="p-3">CB Before</th>
                 <th className="p-3">CB After Allocation</th>
@@ -98,7 +101,7 @@ export const PoolingTab: React.FC = () => {
             </thead>
             <tbody>
               {poolResult.members.map((m) => (
-                <tr key={m.shipId} className="border-b">
+                <tr key={m.shipId} className="border-b dark:border-slate-700">
                   <td className="p-3">{m.shipId}</td>
                   <td className="p-3">{m.cb_before}</td>
                   <td className="p-3 font-bold">{m.cb_after}</td>
