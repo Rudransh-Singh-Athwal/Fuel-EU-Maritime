@@ -17,5 +17,7 @@ export interface ApiPort {
   bankPositiveCb(amount: number): Promise<BankingData>;
   applyBankedSurplus(amount: number): Promise<BankingData>;
   getAdjustedCb(year: string): Promise<PoolMember[]>;
-  createPool(memberIds: string[]): Promise<PoolData>;
+  createPool(
+    members: Array<{ shipId: string; cb_before: number }>,
+  ): Promise<PoolData>;
 }

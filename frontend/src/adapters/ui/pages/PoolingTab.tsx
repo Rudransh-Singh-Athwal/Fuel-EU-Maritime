@@ -29,7 +29,10 @@ export const PoolingTab: React.FC = () => {
   const isValidPool = currentSum >= 0 && selectedIds.size > 1;
 
   const handleCreatePool = async () => {
-    const result = await apiClient.createPool(Array.from(selectedIds));
+    const selectedMembers = members
+      .filter((m) => selectedIds.has(m.shipId))
+      .map((m) => ({ shipId: m.shipId, cb_before: m.cb_before }));
+    const result = await apiClient.createPool(selectedMembers);
     setPoolResult(result);
   };
 
@@ -40,7 +43,8 @@ export const PoolingTab: React.FC = () => {
         <div
           className={`px-4 py-2 rounded font-bold ${currentSum >= 0 ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400" : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400"}`}
         >
-          Pool Sum: {currentSum}
+          Pool Sum:{" "}
+          {currentSum.toLocaleString(undefined, { maximumFractionDigits: 0 })}
         </div>
       </div>
 
@@ -72,7 +76,9 @@ export const PoolingTab: React.FC = () => {
                 <td
                   className={`p-3 font-mono ${member.cb_before >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
                 >
-                  {member.cb_before}
+                  {member.cb_before.toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })}
                 </td>
               </tr>
             ))}
@@ -103,8 +109,16 @@ export const PoolingTab: React.FC = () => {
               {poolResult.members.map((m) => (
                 <tr key={m.shipId} className="border-b dark:border-slate-700">
                   <td className="p-3">{m.shipId}</td>
-                  <td className="p-3">{m.cb_before}</td>
-                  <td className="p-3 font-bold">{m.cb_after}</td>
+                  <td className="p-3">
+                    {m.cb_before.toLocaleString(undefined, {
+                      maximumFractionDigits: 0,
+                    })}
+                  </td>
+                  <td className="p-3 font-bold">
+                    {m.cb_after.toLocaleString(undefined, {
+                      maximumFractionDigits: 0,
+                    })}
+                  </td>
                 </tr>
               ))}
             </tbody>

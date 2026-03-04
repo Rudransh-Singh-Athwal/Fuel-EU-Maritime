@@ -12,8 +12,9 @@ interface RouteData {
   is_baseline: boolean;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-const DEFAULT_SHIP_ID = "S001";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+// const API_URL = "http://localhost:3000";
+const DEFAULT_SHIP_ID = "S002";
 const DEFAULT_YEAR = 2024;
 
 export const apiClient: ApiPort = {
@@ -121,34 +122,17 @@ export const apiClient: ApiPort = {
     return res.json();
   },
 
-  getAdjustedCb: async (_year: string) => {
+  getAdjustedCb: async (year: string) => {
     try {
-      const res = await fetch(`${API_URL}/compliance/adjusted-cb`);
-      const data = await res.json();
-
-      if (!data || data.length === 0) {
-        return [
-          { shipId: "S001", cb_before: -500, cb_after: -500 },
-          { shipId: "S002", cb_before: 1200, cb_after: 1200 },
-          { shipId: "S003", cb_before: 300, cb_after: 300 },
-        ];
-      }
-      return data;
+      const res = await fetch(`${API_URL}/compliance/adjusted-cb?year=${year}`);
+      if (!res.ok) return [];
+      return res.json();
     } catch (_) {
-      return [
-        { shipId: "S001", cb_before: -500, cb_after: -500 },
-        { shipId: "S002", cb_before: 1200, cb_after: 1200 },
-        { shipId: "S003", cb_before: 300, cb_after: 300 },
-      ];
+      return [];
     }
   },
 
-  createPool: async (memberIds: string[]) => {
-    const members = memberIds.map((id) => ({
-      shipId: id,
-      cb_before: id === "S001" ? -500 : id === "S002" ? 1200 : 300,
-    }));
-
+  createPool: async (members: Array<{ shipId: string; cb_before: number }>) => {
     const res = await fetch(`${API_URL}/pools`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

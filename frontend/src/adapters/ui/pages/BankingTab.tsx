@@ -76,7 +76,12 @@ export const BankingTab: React.FC = () => {
                 : "text-red-600 dark:text-red-400"
             }`}
           >
-            {loading ? "…" : currentCb.toFixed(0)} gCO₂eq
+            {loading
+              ? "…"
+              : currentCb.toLocaleString(undefined, {
+                  maximumFractionDigits: 0,
+                })}{" "}
+            gCO₂eq
           </p>
           <span
             className={`text-xs font-medium mt-1 inline-block px-2 py-0.5 rounded-full ${
@@ -94,7 +99,12 @@ export const BankingTab: React.FC = () => {
             Total Banked Surplus
           </h2>
           <p className="text-2xl font-mono font-bold text-blue-600 dark:text-blue-400">
-            {loading ? "…" : bankedAmount.toFixed(0)} gCO₂eq
+            {loading
+              ? "…"
+              : bankedAmount.toLocaleString(undefined, {
+                  maximumFractionDigits: 0,
+                })}{" "}
+            gCO₂eq
           </p>
           <span className="text-xs font-medium mt-1 inline-block px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
             Available to apply
