@@ -23,16 +23,32 @@ export class ComplianceService {
     const routes = await this.routeRepo.findByYear(year);
     if (routes.length === 0) return 0;
 
-    // Average ghg_intensity across all routes for this year as "actual"
-    const avgIntensity =
-      routes.reduce((sum, r) => sum + r.ghg_intensity, 0) / routes.length;
-    const totalFuel = routes.reduce((sum, r) => sum + r.fuelConsumption, 0);
-    const energyInScope = totalFuel * ENERGY_FACTOR;
+    // Find the specific route matching shipId (route_id serves as ship identifier)
+    let route = routes.find((r) => r.route_id === shipId);
 
-    const cb = (TARGET_INTENSITY - avgIntensity) * energyInScope;
+    // Fallback: use the baseline route, then the first route
+    if (!route) {
+      route = routes.find((r) => r.is_baseline) || routes[0];
+    }
+
+    const energyInScope = route.fuelConsumption * ENERGY_FACTOR;
+    const cb = (TARGET_INTENSITY - route.ghg_intensity) * energyInScope;
+
     // Persist computed CB so subsequent calls are consistent
     await this.complianceRepo.saveComplianceBalance(shipId, year, cb);
     return cb;
+  }
+
+  // Returns per-route compliance balance for all routes in a year (for pooling)
+  async getPerRouteCb(
+    year: number,
+  ): Promise<Array<{ shipId: string; cb_before: number; cb_after: number }>> {
+    const routes = await this.routeRepo.findByYear(year);
+    return routes.map((r) => {
+      const energyInScope = r.fuelConsumption * ENERGY_FACTOR;
+      const cb = (TARGET_INTENSITY - r.ghg_intensity) * energyInScope;
+      return { shipId: r.route_id, cb_before: cb, cb_after: cb };
+    });
   }
 
   async bankPositiveCb(shipId: string, year: number, amount: number) {

@@ -47,7 +47,7 @@ describe("ComplianceService", () => {
       expect(mockRouteRepo.findByYear).not.toHaveBeenCalled();
     });
 
-    it("computes CB from routes when no stored record exists", async () => {
+    it("computes CB from baseline route when shipId does not match any route", async () => {
       vi.mocked(mockComplianceRepo.getComplianceBalance).mockResolvedValue(
         null,
       );
@@ -61,15 +61,61 @@ describe("ComplianceService", () => {
           fuelConsumption: 100,
           distance: 500,
           totalEmissions: 8000,
+          is_baseline: true,
+        },
+        {
+          route_id: "R002",
+          vesselType: "Bulk",
+          fuelType: "LNG",
+          year: 2024,
+          ghg_intensity: 90,
+          fuelConsumption: 200,
+          distance: 600,
+          totalEmissions: 18000,
           is_baseline: false,
         },
       ]);
 
       const cb = await service.getComplianceBalance("S001", 2024);
 
-      // CB = (89.3368 - 80) * 100 * 41000 = 9.3368 * 4100000 = 38280880
+      // Falls back to baseline route R001: (89.3368 - 80) * 100 * 41000
       expect(cb).toBeCloseTo((89.3368 - 80) * 100 * 41000, 0);
       expect(mockComplianceRepo.saveComplianceBalance).toHaveBeenCalled();
+    });
+
+    it("computes CB for specific route when shipId matches route_id", async () => {
+      vi.mocked(mockComplianceRepo.getComplianceBalance).mockResolvedValue(
+        null,
+      );
+      vi.mocked(mockRouteRepo.findByYear).mockResolvedValue([
+        {
+          route_id: "R001",
+          vesselType: "Tanker",
+          fuelType: "HFO",
+          year: 2024,
+          ghg_intensity: 91,
+          fuelConsumption: 5000,
+          distance: 12000,
+          totalEmissions: 4500,
+          is_baseline: true,
+        },
+        {
+          route_id: "R002",
+          vesselType: "Bulk",
+          fuelType: "LNG",
+          year: 2024,
+          ghg_intensity: 88,
+          fuelConsumption: 4800,
+          distance: 11500,
+          totalEmissions: 4200,
+          is_baseline: false,
+        },
+      ]);
+
+      const cb = await service.getComplianceBalance("R002", 2024);
+
+      // Uses R002's own data: (89.3368 - 88) * 4800 * 41000
+      expect(cb).toBeCloseTo((89.3368 - 88) * 4800 * 41000, 0);
     });
 
     it("returns 0 when no routes exist", async () => {
@@ -81,6 +127,60 @@ describe("ComplianceService", () => {
       const cb = await service.getComplianceBalance("S001", 2024);
 
       expect(cb).toBe(0);
+    });
+  });
+
+  describe("getPerRouteCb", () => {
+    it("returns per-route CB for all routes in a year", async () => {
+      vi.mocked(mockRouteRepo.findByYear).mockResolvedValue([
+        {
+          route_id: "R001",
+          vesselType: "Container",
+          fuelType: "HFO",
+          year: 2024,
+          ghg_intensity: 91.0,
+          fuelConsumption: 5000,
+          distance: 12000,
+          totalEmissions: 4500,
+          is_baseline: true,
+        },
+        {
+          route_id: "R002",
+          vesselType: "BulkCarrier",
+          fuelType: "LNG",
+          year: 2024,
+          ghg_intensity: 88.0,
+          fuelConsumption: 4800,
+          distance: 11500,
+          totalEmissions: 4200,
+          is_baseline: false,
+        },
+      ]);
+
+      const result = await service.getPerRouteCb(2024);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].shipId).toBe("R001");
+      expect(result[0].cb_before).toBeCloseTo(
+        (89.3368 - 91.0) * 5000 * 41000,
+        0,
+      );
+      expect(result[1].shipId).toBe("R002");
+      expect(result[1].cb_before).toBeCloseTo(
+        (89.3368 - 88.0) * 4800 * 41000,
+        0,
+      );
+      // R001 above target → negative CB, R002 below target → positive CB
+      expect(result[0].cb_before).toBeLessThan(0);
+      expect(result[1].cb_before).toBeGreaterThan(0);
+    });
+
+    it("returns empty array when no routes exist", async () => {
+      vi.mocked(mockRouteRepo.findByYear).mockResolvedValue([]);
+
+      const result = await service.getPerRouteCb(2024);
+
+      expect(result).toEqual([]);
     });
   });
 
@@ -112,9 +212,9 @@ describe("ComplianceService", () => {
         -500,
       );
 
-      await expect(
-        service.bankPositiveCb("S001", 2024, 100),
-      ).rejects.toThrow("CB must be positive to bank surplus");
+      await expect(service.bankPositiveCb("S001", 2024, 100)).rejects.toThrow(
+        "CB must be positive to bank surplus",
+      );
     });
 
     it("throws when amount exceeds current CB", async () => {
@@ -122,9 +222,9 @@ describe("ComplianceService", () => {
         1000,
       );
 
-      await expect(
-        service.bankPositiveCb("S001", 2024, 2000),
-      ).rejects.toThrow("Cannot bank more than current CB");
+      await expect(service.bankPositiveCb("S001", 2024, 2000)).rejects.toThrow(
+        "Cannot bank more than current CB",
+      );
     });
   });
 

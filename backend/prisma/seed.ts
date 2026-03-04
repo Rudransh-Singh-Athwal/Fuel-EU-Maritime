@@ -3,6 +3,8 @@ import { prisma } from "../src/infrastructure/db/prisma";
 
 async function main() {
   await prisma.route.deleteMany();
+  await prisma.shipCompliance.deleteMany();
+  await prisma.bankEntry.deleteMany();
 
   await prisma.route.createMany({
     data: [

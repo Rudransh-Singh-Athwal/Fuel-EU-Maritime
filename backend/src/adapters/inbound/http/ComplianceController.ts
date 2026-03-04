@@ -17,18 +17,13 @@ export class ComplianceController {
     }
   };
 
-  // FIX: was returning hardcoded []
   getAdjustedCb = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { shipId, year } = req.query;
-      const cb = await this.complianceService.getComplianceBalance(
-        String(shipId || "S001"),
+      const { year } = req.query;
+      const members = await this.complianceService.getPerRouteCb(
         Number(year || 2024),
       );
-      // Return array format expected by frontend PoolingTab
-      res.json([
-        { shipId: String(shipId || "S001"), cb_before: cb, cb_after: cb },
-      ]);
+      res.json(members);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
