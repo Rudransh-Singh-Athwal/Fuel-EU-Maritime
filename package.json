@@ -1,0 +1,10 @@
+{
+  "name": "fuel-eu-maritime",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "cd backend && npm test && cd ../frontend && npm test",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test"
+  }
+}
