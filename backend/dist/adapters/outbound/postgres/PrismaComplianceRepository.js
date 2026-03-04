@@ -34,7 +34,14 @@ class PrismaComplianceRepository {
         const entries = await prisma_1.prisma.bankEntry.findMany({
             where: { ship_id: shipId, year },
         });
-        return entries.reduce((sum, entry) => sum + entry.amount_gco2eq, 0);
+        return entries.reduce((sum, e) => sum + e.amount_gco2eq, 0);
+    }
+    // NEW: returns full history of bank entries for a ship/year
+    async getBankingRecords(shipId, year) {
+        return prisma_1.prisma.bankEntry.findMany({
+            where: { ship_id: shipId, year },
+            orderBy: { id: "asc" },
+        });
     }
 }
 exports.PrismaComplianceRepository = PrismaComplianceRepository;

@@ -18,5 +18,8 @@ class PrismaRouteRepository {
             }),
         ]);
     }
+    async findByYear(year) {
+        return prisma_1.prisma.route.findMany({ where: { year } });
+    }
 }
 exports.PrismaRouteRepository = PrismaRouteRepository;

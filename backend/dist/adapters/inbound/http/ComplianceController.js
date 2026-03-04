@@ -16,17 +16,26 @@ class ComplianceController {
             res.status(500).json({ error: error.message });
         }
     };
+    // FIX: was returning hardcoded []
     getAdjustedCb = async (req, res) => {
         try {
-            res.json([]);
+            const { shipId, year } = req.query;
+            const cb = await this.complianceService.getComplianceBalance(String(shipId || "S001"), Number(year || 2024));
+            // Return array format expected by frontend PoolingTab
+            res.json([
+                { shipId: String(shipId || "S001"), cb_before: cb, cb_after: cb },
+            ]);
         }
         catch (error) {
             res.status(500).json({ error: error.message });
         }
     };
+    // FIX: was returning hardcoded []
     getBankingRecords = async (req, res) => {
         try {
-            res.json([]);
+            const { shipId, year } = req.query;
+            const records = await this.complianceService.getBankingRecords(String(shipId || "S001"), Number(year || 2024));
+            res.json(records);
         }
         catch (error) {
             res.status(500).json({ error: error.message });
